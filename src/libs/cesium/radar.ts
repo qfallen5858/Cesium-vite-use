@@ -317,3 +317,114 @@ export class StickRadar{
     this.randarArr = []
   }
 }
+
+export type CreateRadarSolidScanParams = {
+  position: Cesium.Cartesian3,
+  radius?:number,
+  color?:Cesium.Color
+  speed?:number,
+  scanColor?:Cesium.Color
+}
+
+
+export class RadarSolidScan{
+  private _viewer:Cesium.Viewer;
+  private _radarArr:Cesium.Entity[] = []
+  private _positionArr:number[] = []
+  constructor(props:RadarProps){
+    this._viewer = props.viewer;
+  }
+
+  public createRadar(params:CreateRadarSolidScanParams):Cesium.Entity{
+    const {position, radius = 10000.0, color = new Cesium.Color(1.0, 1.0, 0.0, 0.3), speed = 1.0, scanColor = new Cesium.Color(1.0, 0.0, 0.0, 0.8)} = params
+    const parentEntity = this._viewer.entities.getOrCreateEntity('radar');
+    const radar = this._viewer.entities.add({
+      parent:parentEntity,
+      position:position,
+      name:'立体雷达扫描',
+      ellipsoid:{
+        radii: new Cesium.Cartesian3(radius, radius, radius),
+        material:color,
+        outline:true,
+        outlineColor: new Cesium.Color(1.0, 1.0, 0.0, 1.0),
+        outlineWidth:1
+      }
+    })
+
+    let heading = 0;
+    const centerCartographic = Cesium.Cartographic.fromCartesian(position);
+    const lnt = Cesium.Math.toDegrees(centerCartographic.longitude)
+    const lat = Cesium.Math.toDegrees(centerCartographic.latitude)
+    this._viewer.clock.onTick.addEventListener(() => {
+      heading += speed;
+      this._positionArr = this._calculatePane(lnt, lat, radius, heading)
+    })
+
+    const scan = this._viewer.entities.add({
+      parent:parentEntity,
+      wall:{
+        positions: new Cesium.CallbackProperty(()=>{
+          return Cesium.Cartesian3.fromDegreesArrayHeights(this._positionArr)
+        }, false),
+        material:scanColor
+      }
+    })
+    this._radarArr.push(radar, scan, parentEntity)
+    // this._radarArr.push(parentEntity)
+    return parentEntity;
+  }
+
+  public clear():void{
+    this._radarArr.forEach(entity => {
+      this._viewer.entities.remove(entity)
+    })
+    this._radarArr = []
+  }
+
+  public remove(entity:Cesium.Entity):void{
+    for(let i = this._viewer.entities.values.length - 1; i >=0 ; i --){
+      const _entity = this._viewer.entities.values[i];
+      if((_entity.parent && _entity.parent.id === entity.id) || _entity.id === entity.id){
+        this._viewer.entities.remove(_entity)
+      }
+    }
+    this._viewer.entities.remove(entity);
+
+    this._radarArr = this._radarArr.filter(_entity => {
+      if((_entity.parent && _entity.parent.id === entity.id) || _entity.id === entity.id){
+          return false;
+      }
+      return true;
+    })
+  }
+
+
+
+  private _calculatePane(centerLnt:number, centerLat:number, radius:number, heading:number){
+    // console.log(heading)
+    const matrix = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(centerLnt, centerLat));//以中点建立相对坐标系变换矩阵
+    const headingRadians = Cesium.Math.toRadians(heading)
+    const deltaLnt = radius * Math.cos(headingRadians)
+    const deltaLat = radius * Math.sin(headingRadians)
+    const translation = Cesium.Cartesian3.fromElements(deltaLnt, deltaLat, 0)
+    const targetCartesian = Cesium.Matrix4.multiplyByPoint(matrix, translation, new Cesium.Cartesian3())
+    const targetCartographic = Cesium.Cartographic.fromCartesian(targetCartesian)
+    const targetLntDegree = Cesium.Math.toDegrees(targetCartographic.longitude)
+    const targetLatDegree = Cesium.Math.toDegrees(targetCartographic.latitude)
+    return this._calculateSector(centerLnt, centerLat, targetLntDegree, targetLatDegree, radius)
+  }
+
+  private _calculateSector(centerLnt:number, centerLat:number, edgeLnt:number, edgeLat:number, radius:number){
+    const positionArr:number[] = []
+    positionArr.push(centerLnt, centerLat, 0)
+    for(let i = 0; i <= 90; i++){
+      const radians:number = Cesium.Math.toRadians(i)
+      const height = radius * Math.sin(radians)
+      const cos = Math.cos(radians)
+      const lnt = (edgeLnt - centerLnt) * cos + centerLnt
+      const lat = (edgeLat - centerLat) * cos + centerLat
+      positionArr.push(lnt, lat, height)
+    }
+    return positionArr
+  }
+}

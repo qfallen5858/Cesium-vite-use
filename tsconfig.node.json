@@ -10,6 +10,6 @@
   "compilerOptions": {
     "composite": true,
     "module": "ESNext",
-    "types": ["node","vite/client"]
+    "types": ["node","vite/client", "dat.gui"]
   }
 }
