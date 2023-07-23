@@ -1,5 +1,12 @@
 import { fileURLToPath, URL } from 'node:url'
-import { defineConfig, loadEnv, PluginOption, splitVendorChunkPlugin } from 'vite'
+import {
+  AliasOptions,
+  defineConfig,
+  loadEnv,
+  PluginOption,
+  ResolveOptions,
+  splitVendorChunkPlugin
+} from 'vite'
 import vue from '@vitejs/plugin-vue'
 // import externalGlobals from 'rollup-plugin-external-globals'
 import { viteExternalsPlugin } from 'vite-plugin-externals'
@@ -27,22 +34,24 @@ export default defineConfig((context) => {
     insertHtml({
       head: [
         h('script', {
-          src: isProd? `${cesiumBaseUrl}Cesium.js`:`${base}${cesiumBaseUrl}Cesium.js`
+          src: isProd ? `${cesiumBaseUrl}Cesium.js` : `${base}${cesiumBaseUrl}Cesium.js`
         })
       ]
     })
   ]
 
-  if(!isProd){
+  if (!isProd) {
     // 开发模式，复制 node_modules 下的 cesium 依赖
     const cesiumLibraryRoot = 'node_modules/cesium/Build/CesiumUnminified/'
     const cesiumLibraryCopyToRootPath = 'libs/cesium/' // 相对于打包后的路径
-    const cesiumStaticSourceCopyOptions = ['Assets', 'ThirdParty', 'Workers', 'Widgets'].map((dirName) => {
-      return {
-        src: `${cesiumLibraryRoot}${dirName}/*`, // 注意后面的 * 字符，文件夹全量复制
-        dest: `${cesiumLibraryCopyToRootPath}${dirName}`
+    const cesiumStaticSourceCopyOptions = ['Assets', 'ThirdParty', 'Workers', 'Widgets'].map(
+      (dirName) => {
+        return {
+          src: `${cesiumLibraryRoot}${dirName}/*`, // 注意后面的 * 字符，文件夹全量复制
+          dest: `${cesiumLibraryCopyToRootPath}${dirName}`
+        }
       }
-    })
+    )
     plugins.push(
       viteStaticCopy({
         targets: [
@@ -54,18 +63,27 @@ export default defineConfig((context) => {
           // 四大静态文件夹
           ...cesiumStaticSourceCopyOptions
         ]
-      }),
+      })
     )
   }
-  plugins.push(compress({
-    threshold:10 * 1024
-  }))
+  plugins.push(
+    compress({
+      threshold: 10 * 1024
+    })
+  )
+
+  const resolve: ResolveOptions & { alias?: AliasOptions } = {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
 
   return {
     base,
     envDir,
     mode,
-    plugins
+    plugins,
+    resolve
   }
 
   // plugins: [
