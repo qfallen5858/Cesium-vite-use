@@ -38,6 +38,7 @@
     "vite-plugin-externals": "^0.6.2",
     "vite-plugin-insert-html": "^1.0.1",
     "vite-plugin-static-copy": "^0.17.0",
+    "vite-plugin-vue-devtools": "1.0.0-beta.2",
     "vue-tsc": "^1.6.5"
   }
 }

@@ -13,6 +13,8 @@ import { viteExternalsPlugin } from 'vite-plugin-externals'
 import { insertHtml, h } from 'vite-plugin-insert-html'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import compress from 'vite-plugin-compression'
+import vueDevTools from 'vite-plugin-vue-devtools'
+
 // https://vitejs.dev/config/
 export default defineConfig((context) => {
   const mode = context.mode
@@ -27,6 +29,7 @@ export default defineConfig((context) => {
 
   const plugins: PluginOption[] = [
     vue(),
+    vueDevTools(),
     splitVendorChunkPlugin(),
     viteExternalsPlugin({
       cesium: 'Cesium'
