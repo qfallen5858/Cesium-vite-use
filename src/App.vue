@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { onMounted, ref, provide } from 'vue'
-import { TileMapServiceImageryProvider, Viewer, buildModuleUrl, ImageryLayer, Ion, Cartesian3, ScreenSpaceEventHandler, ScreenSpaceEventType, defined, Cartographic, Ellipsoid, Math } from 'cesium'
 import { CESIUM_VIEWER } from '@/symbol/index'
 import * as dat from 'dat.gui'
 import 'cesium/Build/CesiumUnminified/Widgets/widgets.css'
@@ -8,12 +7,14 @@ import 'cesium/Build/CesiumUnminified/Widgets/widgets.css'
 
 import { ShelterRadar } from '@/libs/cesium/radar'
 import { StickRadar, RadarSolidScan } from './libs/cesium/radar';
+import * as Cesium from 'cesium';
+import { AirPlane } from './libs/cesium/action/headingPitchRoll';
 
-Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
+Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Y2QyYjYyZi1lZWQxLTRlMTgtODVlNi05YTM5ZmUwYTkwY2IiLCJpZCI6MTU2MjAzLCJpYXQiOjE2OTAyNTQxMTN9.eo3fqpztANR3dwCOijeRDn-2WFUVZhZNFnLx-cQ2lrU'//'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
 
 const viewerDivRef = ref<HTMLDivElement>()
 
-let viewer: Viewer | null = null;
+let viewer: Cesium.Viewer | null = null;
 
 const sysBaseUrl = import.meta.env.BASE_URL
 const mode = import.meta.env.MODE
@@ -26,18 +27,19 @@ window.CESIUM_BASE_URL = cesiumBaseUrl
 console.log(`模式:${mode}, CESIUM_BASE_URL:${cesiumBaseUrl}`)
 
 onMounted(() => {
-  const baseLayer = ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII'), { minimumLevel: 1, maximumLevel: 10 }), {});// ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII'),{}))
+  const baseLayer = Cesium.ImageryLayer.fromProviderAsync(Cesium.TileMapServiceImageryProvider.fromUrl(Cesium.buildModuleUrl('Assets/Textures/NaturalEarthII'), { minimumLevel: 1, maximumLevel: 10 }), {});// ImageryLayer.fromProviderAsync(TileMapServiceImageryProvider.fromUrl(buildModuleUrl('Assets/Textures/NaturalEarthII'),{}))
   baseLayer.readyEvent.addEventListener(provider => {
     console.log('已经创建 provider')
     provider.errorEvent.addEventListener(error => {
       console.log('加载瓦片出错。原因：', error)
     })
   })
-  viewer = new Viewer(viewerDivRef.value as HTMLElement, {
+  viewer = new Cesium.Viewer(viewerDivRef.value as HTMLElement, {
     // imageryProvider: new TileMapServiceImageryProvider({
     //   url: buildModuleUrl('Assets/Textures/NaturalEarthII')
     // })
-    baseLayer,
+    // baseLayer,
+    
     animation:true,
     timeline:true,
     shouldAnimate:true,
@@ -47,14 +49,14 @@ onMounted(() => {
     navigationHelpButton:false,
     scene3DOnly:true,
     navigationInstructionsInitiallyVisible:true,
-    
+    terrainProvider:Cesium.createWorldTerrain()
   })
   viewer.resolutionScale = 1.2
   viewer.scene.globe.depthTestAgainstTerrain = true
   viewer.scene.debugShowFramesPerSecond = true;
   viewer.postProcessStages.fxaa.enabled = true;
   viewer.camera.setView({
-    destination: Cartesian3.fromDegrees(117.3307246479066, 33.0004749662003, 600000.0),
+    destination: Cesium.Cartesian3.fromDegrees(117.3307246479066, 33.0004749662003, 600000.0),
     orientation: {
       heading: 0,
       pitch: -1.0,
@@ -64,7 +66,7 @@ onMounted(() => {
   })
   const shelterRadar: ShelterRadar = new ShelterRadar({ viewer })
   shelterRadar.createRadar({
-    position: Cartesian3.fromDegrees(117.3307246479066, 35.9004749662003, 0)
+    position: Cesium.Cartesian3.fromDegrees(117.3307246479066, 35.9004749662003, 0)
   })
 
   const stickRadar:StickRadar = new StickRadar({viewer})
@@ -72,23 +74,30 @@ onMounted(() => {
 
   const solidRada:RadarSolidScan = new RadarSolidScan({viewer})
   solidRada.createRadar({
-    position: Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 0)
+    position: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 0)
+  })
+
+  const airPlane:AirPlane = new AirPlane({viewer})
+  airPlane.createAirplane({
+    position: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 5000),
+    url:'./assets/models/Cesium_Air.glb'
+
   })
 
 
-  const handler:ScreenSpaceEventHandler = new ScreenSpaceEventHandler(viewer.scene.canvas);
+  const handler:Cesium.ScreenSpaceEventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-  handler.setInputAction((event:ScreenSpaceEventHandler.PositionedEvent) => {
+  handler.setInputAction((event:Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
     // console.log(event)
-    const pickedPosition:Cartesian3|undefined = viewer?.scene.pickPosition(event.position)
-    if(defined(pickedPosition)){
+    const pickedPosition:Cesium.Cartesian3|undefined = viewer?.scene.pickPosition(event.position)
+    if(Cesium.defined(pickedPosition)){
       console.log(pickedPosition)
-      let position:Cartographic = Cartographic.fromCartesian(pickedPosition!) //Ellipsoid.WGS84.cartesianToCartographic(pickedPosition!)
-      let longitude = Math.toDegrees(position.longitude)
-      let latitude = Math.toDegrees(position.latitude)
+      let position:Cesium.Cartographic = Cesium.Cartographic.fromCartesian(pickedPosition!) //Ellipsoid.WGS84.cartesianToCartographic(pickedPosition!)
+      let longitude = Cesium.Math.toDegrees(position.longitude)
+      let latitude = Cesium.Math.toDegrees(position.latitude)
       console.log(`longitude:${longitude},latitude:${latitude}`)
     }
-  }, ScreenSpaceEventType.LEFT_CLICK)
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
 
   provide(CESIUM_VIEWER, viewer)
 

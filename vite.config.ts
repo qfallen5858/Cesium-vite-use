@@ -76,9 +76,16 @@ export default defineConfig((context) => {
   )
 
   const resolve: ResolveOptions & { alias?: AliasOptions } = {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
+    alias: [
+      {
+        find: '@',
+        replacement: fileURLToPath(new URL('./src', import.meta.url))
+        // '@': fileURLToPath(new URL('./src', import.meta.url))
+      },{
+        find:'asset',
+        replacement:fileURLToPath(new URL('./asset', import.meta.url))
+      }
+    ]
   }
 
   return {
