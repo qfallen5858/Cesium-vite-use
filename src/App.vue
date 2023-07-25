@@ -4,11 +4,14 @@ import { CESIUM_VIEWER } from '@/symbol/index'
 import * as dat from 'dat.gui'
 import 'cesium/Build/CesiumUnminified/Widgets/widgets.css'
 
+console.log(import.meta.env)
 
 import { ShelterRadar } from '@/libs/cesium/radar'
 import { StickRadar, RadarSolidScan } from './libs/cesium/radar';
 import * as Cesium from 'cesium';
 import { AirPlane } from './libs/cesium/action/headingPitchRoll';
+import { Ellipsoid } from 'cesium';
+import { EllipsoidExample } from './libs/cesium/ellipsoids';
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Y2QyYjYyZi1lZWQxLTRlMTgtODVlNi05YTM5ZmUwYTkwY2IiLCJpZCI6MTU2MjAzLCJpYXQiOjE2OTAyNTQxMTN9.eo3fqpztANR3dwCOijeRDn-2WFUVZhZNFnLx-cQ2lrU'//'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
 
@@ -39,17 +42,17 @@ onMounted(() => {
     //   url: buildModuleUrl('Assets/Textures/NaturalEarthII')
     // })
     // baseLayer,
-    
-    animation:true,
-    timeline:true,
-    shouldAnimate:true,
-    baseLayerPicker:false,
-    geocoder:false,
-    sceneModePicker:false,
-    navigationHelpButton:false,
-    scene3DOnly:true,
-    navigationInstructionsInitiallyVisible:true,
-    terrainProvider:Cesium.createWorldTerrain()
+
+    animation: true,
+    timeline: true,
+    shouldAnimate: true,
+    baseLayerPicker: false,
+    geocoder: false,
+    sceneModePicker: false,
+    navigationHelpButton: false,
+    scene3DOnly: true,
+    navigationInstructionsInitiallyVisible: true,
+    terrainProvider: Cesium.createWorldTerrain()
   })
   viewer.resolutionScale = 1.2
   viewer.scene.globe.depthTestAgainstTerrain = true
@@ -69,30 +72,35 @@ onMounted(() => {
     position: Cesium.Cartesian3.fromDegrees(117.3307246479066, 35.9004749662003, 0)
   })
 
-  const stickRadar:StickRadar = new StickRadar({viewer})
-  stickRadar.createRadar({lat:35.9004749662003, lng:117.3307246479066})
+  const stickRadar: StickRadar = new StickRadar({ viewer })
+  stickRadar.createRadar({ lat: 35.9004749662003, lng: 117.3307246479066 })
 
-  const solidRada:RadarSolidScan = new RadarSolidScan({viewer})
+  const solidRada: RadarSolidScan = new RadarSolidScan({ viewer })
   solidRada.createRadar({
     position: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 0)
   })
 
-  const airPlane:AirPlane = new AirPlane({viewer})
+  const airPlane: AirPlane = new AirPlane({ viewer })
   airPlane.createAirplane({
-    position: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 5000),
-    url:'./assets/models/Cesium_Air.glb'
+    position: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000),
+    url: 'assets/models/Cesium_Air.glb'
 
   })
 
 
-  const handler:Cesium.ScreenSpaceEventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
 
-  handler.setInputAction((event:Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
+  const ellipsoidExample: EllipsoidExample = new EllipsoidExample({ viewer })
+  ellipsoidExample.createNormal(Cesium.Cartesian3.fromDegrees(116.46478201418758, 37.28558168329757, 100000), new Cesium.Cartesian3(20000, 20000, 20000))
+
+  ellipsoidExample.createDome(Cesium.Cartesian3.fromDegrees(116.46478201418758, 37.28558168329757,25000), new Cesium.Cartesian3(20000, 20000, 20000))
+  const handler: Cesium.ScreenSpaceEventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+
+  handler.setInputAction((event: Cesium.ScreenSpaceEventHandler.PositionedEvent) => {
     // console.log(event)
-    const pickedPosition:Cesium.Cartesian3|undefined = viewer?.scene.pickPosition(event.position)
-    if(Cesium.defined(pickedPosition)){
+    const pickedPosition: Cesium.Cartesian3 | undefined = viewer?.scene.pickPosition(event.position)
+    if (Cesium.defined(pickedPosition)) {
       console.log(pickedPosition)
-      let position:Cesium.Cartographic = Cesium.Cartographic.fromCartesian(pickedPosition!) //Ellipsoid.WGS84.cartesianToCartographic(pickedPosition!)
+      let position: Cesium.Cartographic = Cesium.Cartographic.fromCartesian(pickedPosition!) //Ellipsoid.WGS84.cartesianToCartographic(pickedPosition!)
       let longitude = Cesium.Math.toDegrees(position.longitude)
       let latitude = Cesium.Math.toDegrees(position.latitude)
       console.log(`longitude:${longitude},latitude:${latitude}`)
@@ -102,14 +110,14 @@ onMounted(() => {
   provide(CESIUM_VIEWER, viewer)
 
   initDatGui()
-  
+
 })
 
-function initDatGui():void{
-  const gui:dat.GUI = new dat.GUI()
-  const radarParams:dat.GUI = gui.addFolder('干扰雷达')
+function initDatGui(): void {
+  const gui: dat.GUI = new dat.GUI()
+  const radarParams: dat.GUI = gui.addFolder('干扰雷达')
   const radarDynamicParams = radarParams.addFolder("雷达动态参数")
-  radarDynamicParams.add({type:'扇扫'}, "type", ['停止','环扫','扇扫', '定位', '俯仰']).name('状态').onChange(value => {
+  radarDynamicParams.add({ type: '扇扫' }, "type", ['停止', '环扫', '扇扫', '定位', '俯仰']).name('状态').onChange(value => {
     console.log(value)
   })
   radarDynamicParams.open();

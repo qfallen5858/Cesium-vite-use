@@ -58,6 +58,11 @@ export default defineConfig((context) => {
     plugins.push(
       viteStaticCopy({
         targets: [
+          {
+            src:'./src/assets/*',
+            dest:'assets/'
+
+          },
           // 主库文件，开发时选用非压缩版的 IIFE 格式主库文件
           {
             src: `${cesiumLibraryRoot}Cesium.js`,
