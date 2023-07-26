@@ -29,7 +29,7 @@ export default defineConfig((context) => {
 
   const plugins: PluginOption[] = [
     vue(),
-    vueDevTools(),
+    // vueDevTools(),
     splitVendorChunkPlugin(),
     viteExternalsPlugin({
       cesium: 'Cesium'
