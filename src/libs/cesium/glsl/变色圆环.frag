@@ -3,6 +3,7 @@ precision mediump float;
 #endif
 uniform vec2 u_resolution;  // 画布的尺寸
 uniform float u_time;
+uniform vec2 u_mouse;
 
 float random(float x)
 {
@@ -17,7 +18,7 @@ void main() {
     float len = length(st);
 
     if (len > 0.5) {
-        gl_FragColor = vec4(1);
+        gl_FragColor = vec4(1.0);
     } else if (len > 0.4) {
         gl_FragColor = vec4(1.0, 0.1843, 0.0, 1.0);
     } else if (len > 0.3) {
@@ -29,4 +30,6 @@ void main() {
     }  else {
         gl_FragColor = vec4(0, 0, 0.0, 1.0);
     }   
+    // vec2 st = gl_FragCoord.xy / u_resolution;
+    // gl_FragColor = vec4(st.x, st.y,  u_mouse.y/u_resolution.y, 1.0);
 }

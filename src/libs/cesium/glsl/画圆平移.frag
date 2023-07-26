@@ -13,7 +13,7 @@ float circleshape(vec2 position, float radius) {
 }
 
 void main() {
-    vec2 coord = gl_FragCoord.xy / u_resolution;
+    vec2 coord = gl_FragCoord.xy / u_resolution;//转换为[0,1]向量值
     vec3 color = vec3(0.0);
 
 // 移动
@@ -21,8 +21,8 @@ void main() {
     // coord += translation * 0.5;
 
 //缩放动画
-    coord = scale(vec2(sin(u_time) + 2.0)) * coord;
+    coord = scale(vec2(sin(u_time) + 2.0)) * coord; // 对coord上的分量做[1,2]之间的放大
 
-    color = vec3(circleshape(coord, 0.3));
+    color = vec3(circleshape(coord, 0.5));
     gl_FragColor = vec4(color, 1.0);
 }
