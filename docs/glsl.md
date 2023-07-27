@@ -25,6 +25,6 @@ https://blog.csdn.net/linzi19900517/article/details/129424356
 
 https://github.com/wshxbqq/GLSL-Card#glsl-%E4%B8%AD%E6%96%87%E6%89%8B%E5%86%8C
 
-https://thebookofshaders.com/
+https://thebookofshaders.com/?lan=ch
 
 https://glslsandbox.com/e#105105.0

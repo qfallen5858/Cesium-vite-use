@@ -12,6 +12,7 @@ import * as Cesium from 'cesium';
 import { AirPlane } from './libs/cesium/action/headingPitchRoll';
 import { Ellipsoid } from 'cesium';
 import { EllipsoidExample } from './libs/cesium/ellipsoids';
+import { PrimitiveWithPath } from './libs/cesium/action/primitiveWithPath';
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Y2QyYjYyZi1lZWQxLTRlMTgtODVlNi05YTM5ZmUwYTkwY2IiLCJpZCI6MTU2MjAzLCJpYXQiOjE2OTAyNTQxMTN9.eo3fqpztANR3dwCOijeRDn-2WFUVZhZNFnLx-cQ2lrU'//'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
 
@@ -111,65 +112,123 @@ onMounted(() => {
 
   provide(CESIUM_VIEWER, viewer)
 
-  
-  const ellipsoid = viewer.entities.add({
-    position:Cesium.Cartesian3.fromDegrees(116.46478201418758, 37.28558168329757, 25000),
-    ellipsoid:{
-      radii: new Cesium.Cartesian3(5000,5000,5000),
-      material:new Cesium.Color(1, 1,0).withAlpha(0.4)
-    }
-  })
-  const params = {
-    radii: 50000.0,
-    minimumClock:180,
-    maximumClock:360,
-    minimumCone: 0,
-    maximumCone:360,
-    color:[ 0, 128, 255, 0.3 ],
-    position:[116.46478201418758, 37.28558168329757, 25000],
-    
-  }
-  const gui = initDatGui()
-  const ellipsoidParams: dat.GUI = gui.addFolder('ellipoid')
-  ellipsoidParams.add(params, 'minimumClock').name('最小圆角').min(0).max(360).step(5).onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).minimumClock = new Cesium.ConstantProperty(Cesium.Math.toRadians(val));
-    console.log(`minimumClock:${val}`)
-  })
-  ellipsoidParams.add(params, 'maximumClock').name('最大圆角').min(0).max(360).step(5).onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).maximumClock = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
-    console.log(`maximumClock:${val}`)
-  })
-  ellipsoidParams.add(params, 'radii').name('半径').min(50000).max(500000).step(10000).onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).radii = new Cesium.ConstantProperty(new Cesium.Cartesian3(val, val, val)) ;
-    console.log(`radii:${val}`)
-  })
-  ellipsoidParams.addColor(params, 'color').name('颜色').onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).material = new Cesium.ColorMaterialProperty(new Cesium.Color(val[0]/255, val[1]/255, val[2]/255).withAlpha(val[3])) ;
-    console.log(`color:${val}`)
-  })
-  ellipsoidParams.add(params, 'minimumCone').name('最小锥角').min(0).max(360).step(5).onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).minimumCone = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
-    console.log(`minimumCone:${val}`)
-  })
 
-  ellipsoidParams.add(params, 'maximumCone').name('最大锥角').min(0).max(360).step(5).onFinishChange((val) => {
-    (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).maximumCone = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
-    console.log(`maximumCone:${val}`)
-    console.log(`params:${params}`)
-    console.log(params)
-  })
-  
+  // const ellipsoid = viewer.entities.add({
+  //   position:Cesium.Cartesian3.fromDegrees(116.46478201418758, 37.28558168329757, 25000),
+  //   ellipsoid:{
+  //     radii: new Cesium.Cartesian3(5000,5000,5000),
+  //     material:new Cesium.Color(1, 1,0).withAlpha(0.4)
+  //   }
+  // })
+  // const params = {
+  //   radii: 50000.0,
+  //   minimumClock:180,
+  //   maximumClock:360,
+  //   minimumCone: 0,
+  //   maximumCone:360,
+  //   color:[ 0, 128, 255, 0.3 ],
+  //   position:[116.46478201418758, 37.28558168329757, 25000],
 
-  ellipsoidParams.open()
-  
+  // }
+  // const gui = initDatGui()
+  // const ellipsoidParams: dat.GUI = gui.addFolder('ellipoid')
+  // ellipsoidParams.add(params, 'minimumClock').name('最小圆角').min(0).max(360).step(5).onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).minimumClock = new Cesium.ConstantProperty(Cesium.Math.toRadians(val));
+  //   console.log(`minimumClock:${val}`)
+  // })
+  // ellipsoidParams.add(params, 'maximumClock').name('最大圆角').min(0).max(360).step(5).onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).maximumClock = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
+  //   console.log(`maximumClock:${val}`)
+  // })
+  // ellipsoidParams.add(params, 'radii').name('半径').min(50000).max(500000).step(10000).onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).radii = new Cesium.ConstantProperty(new Cesium.Cartesian3(val, val, val)) ;
+  //   console.log(`radii:${val}`)
+  // })
+  // ellipsoidParams.addColor(params, 'color').name('颜色').onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).material = new Cesium.ColorMaterialProperty(new Cesium.Color(val[0]/255, val[1]/255, val[2]/255).withAlpha(val[3])) ;
+  //   console.log(`color:${val}`)
+  // })
+  // ellipsoidParams.add(params, 'minimumCone').name('最小锥角').min(0).max(360).step(5).onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).minimumCone = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
+  //   console.log(`minimumCone:${val}`)
+  // })
+
+  // ellipsoidParams.add(params, 'maximumCone').name('最大锥角').min(0).max(360).step(5).onFinishChange((val) => {
+  //   (ellipsoid.ellipsoid as Cesium.EllipsoidGraphics).maximumCone = new Cesium.ConstantProperty(Cesium.Math.toRadians(val)) ;
+  //   console.log(`maximumCone:${val}`)
+  //   console.log(`params:${params}`)
+  //   console.log(params)
+  // })
+
+
+  // initAirPlane(viewer);
+
+  // ellipsoidParams.open()
+
+  const pwp = new PrimitiveWithPath({viewer});
+  const position = Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000)
+  const position2 = Cesium.Cartesian3.fromDegrees(118.1513137612399, 37.950227497287244, 25000)
+
+  const url = 'assets/models/Cesium_Air.glb'
+  pwp.create({position, url})
+  pwp.create({position:position2, url})
 })
 
-onUnmounted(()=>{
-  if(Cesium.defined(viewer)){
+onUnmounted(() => {
+  if (Cesium.defined(viewer)) {
     viewer?.entities.removeAll()
     viewer?.destroy()
   }
 })
+
+async function initAirPlane(_viewer: Cesium.Viewer): Promise<void> {
+  if (!viewer) return;
+  const scene: Cesium.Scene = viewer.scene;
+  const pathPoistion = new Cesium.SampledPositionProperty();
+  const entityPath = _viewer.entities.add({
+    position: pathPoistion,
+    name: 'path',
+    path: {
+      show: true,
+      leadTime: 0,
+      trailTime: 60,
+      width: 10,
+      resolution: 1,
+      material: Cesium.Color.RED
+    }
+  })
+
+
+  const fixedFrameTransform = Cesium.Transforms.localFrameToFixedFrameGenerator(
+    "north",
+    "west"
+  );
+
+  let position = Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000)
+  const speed = 10;
+  const hpRoll = new Cesium.HeadingPitchRoll();
+  let speedVector = new Cesium.Cartesian3();
+  const matrix = Cesium.Transforms.headingPitchRollToFixedFrame(position, hpRoll, Cesium.Ellipsoid.WGS84, fixedFrameTransform)
+  const airPlane = scene.primitives.add(
+    await Cesium.Model.fromGltfAsync({
+      url: 'assets/models/Cesium_Air.glb',
+      modelMatrix: Cesium.Transforms.headingPitchRollToFixedFrame(
+        position, 
+        hpRoll, 
+        Cesium.Ellipsoid.WGS84, 
+        fixedFrameTransform),
+        minimumPixelSize: 128
+    })
+  )
+  scene.preUpdate.addEventListener(() => {
+    speedVector = Cesium.Cartesian3.multiplyByScalar(Cesium.Cartesian3.UNIT_X, speed * 10, speedVector);
+
+    position = Cesium.Matrix4.multiplyByPoint(airPlane.modelMatrix, speedVector, position);
+    pathPoistion.addSample(Cesium.JulianDate.now(), position);
+    Cesium.Transforms.headingPitchRollToFixedFrame(position, hpRoll, Cesium.Ellipsoid.WGS84, fixedFrameTransform, airPlane.modelMatrix);
+
+  })
+}
 
 function initDatGui(): dat.GUI {
   const gui: dat.GUI = new dat.GUI()
@@ -182,7 +241,7 @@ function initDatGui(): dat.GUI {
   // const ctrObj = {param1:0.01, param2:0.01}
   // gui.add(ctrObj, 'param1', 0.01)
   // gui.add(ctrObj, 'param2', 0.01)
-  
+
   gui.width = 350
   return gui;
 }

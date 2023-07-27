@@ -1,5 +1,6 @@
 knockout可以在cesium上添加响应式支持
-```
+
+```javascript
 let viewer = new Cesium.Viewer('cesiumContainer');
 
     // 1.创建viewModel对象
@@ -35,7 +36,5 @@ let viewer = new Cesium.Viewer('cesiumContainer');
         mLayer[name] = value;
       });
     }
-————————————————
-版权声明：本文为CSDN博主「GISer小辉」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
-原文链接：https://blog.csdn.net/u010358183/article/details/122290353
+
 ```
