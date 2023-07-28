@@ -1,8 +1,5 @@
 import * as Cesium from 'cesium'
-
-export type RadarProps = {
-  viewer:Cesium.Viewer;
-}
+import type { InitProps } from './type';
 
 export type CreateRadarParams = {
   position: Cesium.Cartesian3,
@@ -15,7 +12,7 @@ export type CreateRadarParams = {
 export class ShelterRadar{
   private _viewer:Cesium.Viewer;
   private _radarArr:Cesium.Entity[] = []
-  constructor(props:RadarProps){
+  constructor(props:InitProps){
     this._viewer = props.viewer;
   }
 
@@ -72,7 +69,7 @@ export class StickRadar{
   private _viewer:Cesium.Viewer;
 
   private randarArr:any[] = []
-  constructor(props:RadarProps){
+  constructor(props:InitProps){
     this._viewer = props.viewer;
   }
 
@@ -331,7 +328,7 @@ export class RadarSolidScan{
   private _viewer:Cesium.Viewer;
   private _radarArr:Cesium.Entity[] = []
   private _positionArr:number[] = []
-  constructor(props:RadarProps){
+  constructor(props:InitProps){
     this._viewer = props.viewer;
   }
 

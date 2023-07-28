@@ -85,4 +85,12 @@ export class PrimitiveWithPath {
       )
     })
   }
+
+  public clear():void{
+    this._arr.forEach(item =>{
+      this._viewer.entities.remove(item.path)
+      this._viewer.scene.primitives.remove(item.primitive)
+    })
+    this._arr = []
+  }
 }

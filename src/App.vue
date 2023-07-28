@@ -13,6 +13,8 @@ import { AirPlane } from './libs/cesium/action/headingPitchRoll';
 import { Ellipsoid } from 'cesium';
 import { EllipsoidExample } from './libs/cesium/ellipsoids';
 import { PrimitiveWithPath } from './libs/cesium/action/primitiveWithPath';
+import { Wave } from './libs/cesium/action/wave';
+import { DebugCamera } from './libs/cesium/action/DebugCamera';
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Y2QyYjYyZi1lZWQxLTRlMTgtODVlNi05YTM5ZmUwYTkwY2IiLCJpZCI6MTU2MjAzLCJpYXQiOjE2OTAyNTQxMTN9.eo3fqpztANR3dwCOijeRDn-2WFUVZhZNFnLx-cQ2lrU'//'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
 
@@ -165,13 +167,21 @@ onMounted(() => {
 
   // ellipsoidParams.open()
 
-  const pwp = new PrimitiveWithPath({viewer});
-  const position = Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000)
-  const position2 = Cesium.Cartesian3.fromDegrees(118.1513137612399, 37.950227497287244, 25000)
+  // const pwp = new PrimitiveWithPath({viewer});
+  // const position = Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000)
+  // const position2 = Cesium.Cartesian3.fromDegrees(118.1513137612399, 37.950227497287244, 25000)
 
-  const url = 'assets/models/Cesium_Air.glb'
-  pwp.create({position, url})
-  pwp.create({position:position2, url})
+  // const url = 'assets/models/Cesium_Air.glb'
+  // pwp.create({position, url})
+  // pwp.create({position:position2, url})
+  // const wave = new Wave({viewer})
+  
+  // wave.createWave()
+    const debugCamera = new DebugCamera({viewer})
+    debugCamera.create({
+      start:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000),
+      target:Cesium.Cartesian3.fromDegrees(117.1513137612399, 35.950227497287244, 25000)
+    })
 })
 
 onUnmounted(() => {
@@ -181,54 +191,6 @@ onUnmounted(() => {
   }
 })
 
-async function initAirPlane(_viewer: Cesium.Viewer): Promise<void> {
-  if (!viewer) return;
-  const scene: Cesium.Scene = viewer.scene;
-  const pathPoistion = new Cesium.SampledPositionProperty();
-  const entityPath = _viewer.entities.add({
-    position: pathPoistion,
-    name: 'path',
-    path: {
-      show: true,
-      leadTime: 0,
-      trailTime: 60,
-      width: 10,
-      resolution: 1,
-      material: Cesium.Color.RED
-    }
-  })
-
-
-  const fixedFrameTransform = Cesium.Transforms.localFrameToFixedFrameGenerator(
-    "north",
-    "west"
-  );
-
-  let position = Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000)
-  const speed = 10;
-  const hpRoll = new Cesium.HeadingPitchRoll();
-  let speedVector = new Cesium.Cartesian3();
-  const matrix = Cesium.Transforms.headingPitchRollToFixedFrame(position, hpRoll, Cesium.Ellipsoid.WGS84, fixedFrameTransform)
-  const airPlane = scene.primitives.add(
-    await Cesium.Model.fromGltfAsync({
-      url: 'assets/models/Cesium_Air.glb',
-      modelMatrix: Cesium.Transforms.headingPitchRollToFixedFrame(
-        position, 
-        hpRoll, 
-        Cesium.Ellipsoid.WGS84, 
-        fixedFrameTransform),
-        minimumPixelSize: 128
-    })
-  )
-  scene.preUpdate.addEventListener(() => {
-    speedVector = Cesium.Cartesian3.multiplyByScalar(Cesium.Cartesian3.UNIT_X, speed * 10, speedVector);
-
-    position = Cesium.Matrix4.multiplyByPoint(airPlane.modelMatrix, speedVector, position);
-    pathPoistion.addSample(Cesium.JulianDate.now(), position);
-    Cesium.Transforms.headingPitchRollToFixedFrame(position, hpRoll, Cesium.Ellipsoid.WGS84, fixedFrameTransform, airPlane.modelMatrix);
-
-  })
-}
 
 function initDatGui(): dat.GUI {
   const gui: dat.GUI = new dat.GUI()

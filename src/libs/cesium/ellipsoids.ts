@@ -1,9 +1,5 @@
 import * as Cesium from 'cesium';
-
-export type InitProps = {
-  viewer:Cesium.Viewer
-}
-
+import type { InitProps } from './type';
 export class EllipsoidExample{
   private _viewer:Cesium.Viewer;
 
