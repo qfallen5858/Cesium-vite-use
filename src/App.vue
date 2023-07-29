@@ -179,8 +179,8 @@ onMounted(() => {
   // wave.createWave()
     const debugCamera = new DebugCamera({viewer})
     debugCamera.create({
-      start:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.950227497287244, 25000),
-      target:Cesium.Cartesian3.fromDegrees(117.1513137612399, 35.950227497287244, 25000)
+      start:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.95022749728724, 25000),
+      target:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.75022749728724, 25000)
     })
 })
 
