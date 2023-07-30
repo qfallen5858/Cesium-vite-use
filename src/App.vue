@@ -15,6 +15,7 @@ import { EllipsoidExample } from './libs/cesium/ellipsoids';
 import { PrimitiveWithPath } from './libs/cesium/action/primitiveWithPath';
 import { Wave } from './libs/cesium/action/wave';
 import { DebugCamera } from './libs/cesium/action/DebugCamera';
+import { PositionPicker } from './libs/cesium/helper/PositionPicker';
 
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2Y2QyYjYyZi1lZWQxLTRlMTgtODVlNi05YTM5ZmUwYTkwY2IiLCJpZCI6MTU2MjAzLCJpYXQiOjE2OTAyNTQxMTN9.eo3fqpztANR3dwCOijeRDn-2WFUVZhZNFnLx-cQ2lrU'//'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI0YWI3NWFkMS00MzVhLTRlZDQtOTQ2Ny1kYTQyMDZhMDUzNTEiLCJpZCI6NzMzLCJpYXQiOjE1MjU2ODgwMDl9.ZDRO50KVh7eEHQ5y00x_VJ0QUSNojr0xC5fcULWKc-Q';
 
@@ -41,6 +42,7 @@ onMounted(() => {
     provider.errorEvent.addEventListener(error => {
       console.log('加载瓦片出错。原因：', error)
     })
+
   })
   viewer = new Cesium.Viewer(viewerDivRef.value as HTMLElement, {
     // imageryProvider: new TileMapServiceImageryProvider({
@@ -59,6 +61,7 @@ onMounted(() => {
     navigationInstructionsInitiallyVisible: true,
     // terrainProvider: Cesium.createWorldTerrain()
   })
+
   viewer.resolutionScale = 1.2
   viewer.scene.globe.depthTestAgainstTerrain = true
   viewer.scene.debugShowFramesPerSecond = true;
@@ -111,6 +114,11 @@ onMounted(() => {
       console.log(`longitude:${longitude},latitude:${latitude}`)
     }
   }, Cesium.ScreenSpaceEventType.LEFT_CLICK)
+
+
+
+  const positionPicker = new PositionPicker({ viewer })
+  positionPicker.startPick();
 
   provide(CESIUM_VIEWER, viewer)
 
@@ -175,13 +183,13 @@ onMounted(() => {
   // pwp.create({position, url})
   // pwp.create({position:position2, url})
   // const wave = new Wave({viewer})
-  
+
   // wave.createWave()
-    const debugCamera = new DebugCamera({viewer})
-    debugCamera.create({
-      start:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.95022749728724, 25000),
-      target:Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.75022749728724, 25000)
-    })
+  const debugCamera = new DebugCamera({ viewer })
+  debugCamera.create({
+    start: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.95022749728724, 25000),
+    target: Cesium.Cartesian3.fromDegrees(117.1513137612399, 37.75022749728724, 25000)
+  })
 })
 
 onUnmounted(() => {

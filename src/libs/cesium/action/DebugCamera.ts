@@ -50,6 +50,9 @@ export class DebugCamera{
     let frustum = new Cesium.PerspectiveFrustum();
     frustum = (spotLightCamera.frustum as Cesium.PerspectiveFrustum).clone(frustum)
     frustum.fov = Cesium.Math.PI_OVER_SIX
+    frustum.far = 100000.0
+    frustum.near = 1
+    frustum.aspectRatio = 1
     const scratchRight = new Cesium.Cartesian3();
     const scratchRotation = new Cesium.Matrix3();
     const scratchOritentation = new Cesium.Quaternion();
@@ -72,7 +75,7 @@ export class DebugCamera{
     );
 
     const instanceOutline = new Cesium.GeometryInstance({
-      geometry:new Cesium.FrustumGeometry({
+      geometry:new Cesium.FrustumOutlineGeometry({//可以FrustumGeometry绘制
         frustum,//:spotLightCamera.frustum as Cesium.PerspectiveFrustum,
         origin:position,
         orientation
