@@ -6,8 +6,11 @@ export class PositionPicker {
 
   private _labelEntity: Cesium.Entity | null = null
 
+  private _handler:Cesium.ScreenSpaceEventHandler;
+
   public constructor(initProps: InitProps) {
     this._viewer = initProps.viewer
+    this._handler = new Cesium.ScreenSpaceEventHandler(this._viewer.canvas)
   }
 
   public startPick() {
@@ -26,8 +29,8 @@ export class PositionPicker {
       }
     })
 
-    const handler = new Cesium.ScreenSpaceEventHandler(this._viewer.canvas)
-    handler.setInputAction(this._moveFunc, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
+    // const handler = new Cesium.ScreenSpaceEventHandler(this._viewer.canvas)
+    this._handler.setInputAction(this._moveFunc, Cesium.ScreenSpaceEventType.MOUSE_MOVE)
   }
 
   private _moveFunc = (movement: Cesium.ScreenSpaceEventHandler.MotionEvent) => {
@@ -39,7 +42,7 @@ export class PositionPicker {
     console.log(cartesian)
     if (cartesian) {
       const cartographic = Cesium.Cartographic.fromCartesian(cartesian)
-      console.log(cartographic)
+      // console.log(cartographic)
       cartographic.height = 10
       const longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(2)
       const latitudeString = Cesium.Math.toDegrees(cartographic.latitude).toFixed(2)
@@ -53,7 +56,7 @@ export class PositionPicker {
           this._viewer.scene.globe.ellipsoid
         )
       )
-      console.log(this._labelEntity?.position)
+      // console.log(this._labelEntity?.position)
       this._labelEntity!.label!.show = new Cesium.ConstantProperty(true)
       this._labelEntity!.label!.text = new Cesium.ConstantProperty(
         `Lon:${longitudeString} \n Lat:${latitudeString}`
@@ -68,7 +71,6 @@ export class PositionPicker {
       return
     }
 
-    const handler = new Cesium.ScreenSpaceEventHandler(this._viewer.canvas)
-    handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+    this._handler.removeInputAction(Cesium.ScreenSpaceEventType.MOUSE_MOVE);
   }
 }
